@@ -481,7 +481,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     while (SqlReader.Read())
                     {
                         Accesorio Nuevo_Accesorio = new Accesorio();
-                        Nuevo_Accesorio.ID_Accesorio = SqlReader.GetInt32(0);
+                        Nuevo_Accesorio.ID_Accesorio = SqlReader.GetString(0);
                         Nuevo_Accesorio.ID_Instrumento = SqlReader.GetInt32(1);
                         Nuevo_Accesorio.Nombre = SqlReader.GetString(2);
                         Nuevo_Accesorio.Descripcion = SqlReader.GetString(3);
@@ -512,13 +512,20 @@ namespace MELB_WS.Models.Inventario.Operaciones
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
-                CMD = new SqlCommand("I_Insertar_Accesorio", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Inst.ID_Accesorio;
-                CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Inst.ID_Instrumento;
-                CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
-                CMD.Parameters.Add("@Descripcion", SqlDbType.VarChar).Value = Inst.Descripcion;
-                CMD.ExecuteNonQuery();
+                var Lista_ID_Accesorios = Inst.ID_Accesorio.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                var Lista_Nombres = Inst.Nombre.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                var Lista_Descripcion = Inst.Descripcion.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+                for (int I = 0; I < Lista_ID_Accesorios.Length; I++)
+                {
+                    CMD = new SqlCommand("I_Insertar_Accesorio", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Lista_ID_Accesorios[I];
+                    CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Inst.ID_Instrumento;
+                    CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Lista_Nombres[I];
+                    CMD.Parameters.Add("@Descripcion", SqlDbType.VarChar).Value = Lista_Descripcion[I];
+                    CMD.ExecuteNonQuery();
+                }
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
                 return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}";
@@ -553,13 +560,20 @@ namespace MELB_WS.Models.Inventario.Operaciones
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
-                CMD = new SqlCommand("I_Actualizar_Accesorio", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Inst.ID_Accesorio;
-                CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Inst.ID_Instrumento;
-                CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
-                CMD.Parameters.Add("@Descripcion", SqlDbType.VarChar).Value = Inst.Descripcion;
-                CMD.ExecuteNonQuery();
+                var Lista_ID_Accesorios = Inst.ID_Accesorio.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                var Lista_Nombres = Inst.Nombre.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                var Lista_Descripcion = Inst.Descripcion.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+                for (int I = 0; I < Lista_ID_Accesorios.Length; I++)
+                {
+                    CMD = new SqlCommand("I_Actualizar_Accesorio", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Lista_ID_Accesorios[I];
+                    CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Inst.ID_Instrumento;
+                    CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Lista_Nombres[I];
+                    CMD.Parameters.Add("@Descripcion", SqlDbType.VarChar).Value = Lista_Descripcion[I];
+                    CMD.ExecuteNonQuery();
+                }
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
                 return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}";
