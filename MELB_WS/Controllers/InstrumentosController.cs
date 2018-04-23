@@ -17,33 +17,33 @@ namespace MELB_WS.Controllers
         
         // Retorno de toda la coleccion de datos //
         [SwaggerOperation("GetAll")]
-        public string Get()
+        public IHttpActionResult Get()
         {
-            return Instancia_OP.Devolver_Lista_Todos_Instrumentos();            
+            return Content(HttpStatusCode.OK,Instancia_OP.Devolver_Lista_Todos_Instrumentos());            
         }
         
         // Retorno de un registro de la coleccion de datos //
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Get(int ID)
+        public IHttpActionResult Get(int ID)
         {
-            return Instancia_OP.Devolver_Lista_Todos_Instrumentos(0,ID);
+            return Content(HttpStatusCode.OK,Instancia_OP.Devolver_Lista_Todos_Instrumentos(0,ID));
         }
 
         // Creacion de un nuevo registro //
         [SwaggerOperation("Create")]
         [SwaggerResponse(HttpStatusCode.Created)]
         [SwaggerResponse(HttpStatusCode.NotFound)]        
-        public string Post([FromBody]Instrumento Ins)
+        public IHttpActionResult Post([FromBody]Instrumento Ins)
         {
             if (ModelState.IsValid && Ins != null)
             {
-                return Instancia_OP.Insertar_Instrumento(Ins);
+                return Content(HttpStatusCode.OK,Instancia_OP.Insertar_Instrumento(Ins));
             }            
             else 
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"El modelo no es correcto, asegurate de enviar bien los datos\"}";
+                return Content(HttpStatusCode.BadRequest, "{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}");   
             }
         }
 
@@ -51,7 +51,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Update")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Put([FromBody]Instrumento Ins)
+        public IHttpActionResult Put([FromBody]Instrumento Ins)
         {
             if (ModelState.IsValid && Ins != null)
             {
@@ -59,7 +59,7 @@ namespace MELB_WS.Controllers
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"El modelo no es correcto, asegurate de enviar bien los datos\"}";
+                return Content(HttpStatusCode.BadRequest,"{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}");                
             }
         }
 
@@ -67,9 +67,9 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Delete")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Delete(int ID)
+        public IHttpActionResult Delete(int ID)
         {
-            return Instancia_OP.Eliminar_Instrumento(ID);
+            return Content(HttpStatusCode.OK,Instancia_OP.Eliminar_Instrumento(ID));
         }
     }
 }

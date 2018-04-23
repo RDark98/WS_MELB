@@ -15,6 +15,8 @@ namespace MELB_WS
             var Cors = new EnableCorsAttribute("*", "*", "*");
             config.EnableCors(Cors);
 
+            GlobalConfiguration.Configuration.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+
             // Rutas de Web API
             config.MapHttpAttributeRoutes();
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));

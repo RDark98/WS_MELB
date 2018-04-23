@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Web;
 using MELB_WS.Models.BBDD;
 using System.Data;
-using System.Web.Script.Serialization;
 using MELB_WS.Models.Inventario.Modelos;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Web.Http;
+using System.Net;
 
 namespace MELB_WS.Models.Inventario.Operaciones
 {
@@ -18,7 +17,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
                       los procesos de inventario.
     */
 
-    public class Operaciones_Inventario
+    public class Operaciones_Inventario  : ApiController
     {
         private ConexionBBDD Instancia_BBDD;
         private SqlDataReader SqlReader;
@@ -79,24 +78,24 @@ namespace MELB_WS.Models.Inventario.Operaciones
 
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return JsonConvert.SerializeObject(Lista_Instrumento, Formatting.None, new JsonSerializerSettings
+                    return Content(HttpStatusCode.OK,JsonConvert.SerializeObject(Lista_Instrumento, Formatting.None, new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
-                    });
+                    }));
                 }
                 else
                 {
-                    return "{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}";
+                    return Content(HttpStatusCode.OK,"{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.OK,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Inserta un instrumento dado su modelo //
-        public string Insertar_Instrumento(Instrumento Inst)
+        public IHttpActionResult Insertar_Instrumento(Instrumento Inst)
         {
             if(Inst.Tipo_Ubicacion == "1"){ Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor } };}
             else { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor },{ 4,Convert.ToInt32(Inst.ID_Aula)}};}        
@@ -123,16 +122,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     CMD.ExecuteNonQuery();
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}";
+                    return Content(HttpStatusCode.OK,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}");
                 }
                 else
                 {
-                    return Errores + "}";
+                    return Content(HttpStatusCode.BadRequest,Errores + "}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
@@ -147,16 +146,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 CMD.ExecuteNonQuery();
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
-                return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el instrumento\"}";
+                return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el instrumento\"}");
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Actualiza un instrumento dado su modelo //
-        public string Actualizar_Instrumento (Instrumento Inst)
+        public IHttpActionResult Actualizar_Instrumento (Instrumento Inst)
         {
             if (Inst.Tipo_Ubicacion == "1") { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor }, { 2, Inst.ID_Instrumento }}; }
             else { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor }, { 4, Convert.ToInt32(Inst.ID_Aula) }, { 2, Inst.ID_Instrumento } }; }            
@@ -182,16 +181,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     CMD.ExecuteNonQuery();
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}";
+                    return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}");                    
                 }
                 else
                 {
-                    return Errores + "}";
+                    return Content(HttpStatusCode.OK,Errores + "}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
         #endregion
