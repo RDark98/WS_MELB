@@ -17,16 +17,16 @@ namespace MELB_WS.Controllers
         
         // Retorno de toda la coleccion de datos //
         [SwaggerOperation("GetAll")]
-        public IHttpActionResult Get()
+        public dynamic  Get()
         {
-            return Content(HttpStatusCode.OK,Instancia_OP.Devolver_Lista_Todos_Instrumentos());            
+            return Instancia_OP.Devolver_Lista_Todos_Instrumentos();            
         }
         
         // Retorno de un registro de la coleccion de datos //
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public IHttpActionResult Get(int ID)
+        public dynamic Get(int ID)
         {
             return Content(HttpStatusCode.OK,Instancia_OP.Devolver_Lista_Todos_Instrumentos(0,ID));
         }

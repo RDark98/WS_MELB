@@ -16,7 +16,7 @@ namespace MELB_WS.Controllers
 
         // Retorno de toda la coleccion de datos //
         [SwaggerOperation("GetAll")]
-        public string Get()
+        public dynamic Get()
         {
             return Instancia_OP.Devolver_Lista_Todos_Estuches();
         }
@@ -25,7 +25,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Get(int ID)
+        public dynamic Get(int ID)
         {
             return Instancia_OP.Devolver_Lista_Todos_Estuches(ID, 1);
         }
@@ -34,7 +34,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Create")]
         [SwaggerResponse(HttpStatusCode.Created)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Post([FromBody]Estuche Ins)
+        public IHttpActionResult Post([FromBody]Estuche Ins)
         {
             if (ModelState.IsValid && Ins != null)
             {
@@ -42,7 +42,7 @@ namespace MELB_WS.Controllers
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"El modelo no es correcto, asegurate de enviar bien los datos\"}";
+                return Content(HttpStatusCode.BadRequest,"{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}");                
             }
         }
 
@@ -50,7 +50,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Update")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Put([FromBody]Estuche Ins)
+        public IHttpActionResult Put([FromBody]Estuche Ins)
         {
             if (ModelState.IsValid && Ins != null)
             {
@@ -58,7 +58,7 @@ namespace MELB_WS.Controllers
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"El modelo no es correcto, asegurate de enviar bien los datos\"}";
+                return Content(HttpStatusCode.BadRequest,"{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}");                
             }
         }
 
@@ -66,7 +66,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Delete")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public string Delete(int ID)
+        public IHttpActionResult Delete(int ID)
         {
             return Instancia_OP.Eliminar_Estuche(ID);
         }

@@ -35,7 +35,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
 
         #region CRUD : Controlador Instrumento 
         // Devuelve la lista total de todos los instrumentos //
-        public string Devolver_Lista_Todos_Instrumentos(int Bandera = 1 , int ID_Instrumento = 0)
+        public dynamic Devolver_Lista_Todos_Instrumentos(int Bandera = 1 , int ID_Instrumento = 0)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -78,19 +78,19 @@ namespace MELB_WS.Models.Inventario.Operaciones
 
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return Content(HttpStatusCode.OK,JsonConvert.SerializeObject(Lista_Instrumento, Formatting.None, new JsonSerializerSettings
+                    return JsonConvert.SerializeObject(Lista_Instrumento, Formatting.None, new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
-                    }));
+                    });
                 }
                 else
                 {
-                    return Content(HttpStatusCode.OK,"{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
+                    return Content(HttpStatusCode.NotFound,"{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
                 }
             }
             else
             {
-                return Content(HttpStatusCode.OK,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
@@ -136,7 +136,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
         }
 
         // Elimina un instrumento dado su identificador //
-        public string Eliminar_Instrumento (int Id)
+        public IHttpActionResult Eliminar_Instrumento (int Id)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -185,7 +185,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 }
                 else
                 {
-                    return Content(HttpStatusCode.OK,Errores + "}");
+                    return Content(HttpStatusCode.BadRequest,Errores + "}");
                 }
             }
             else
@@ -198,7 +198,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
 
         #region CRUD : Controlador Proveedor 
         // Lista de todos los Proveedores e Individual //
-        public string Devolver_Lista_Todos_Proveedores(int Bandera = 1, int ID_Proveedor = 0)
+        public dynamic Devolver_Lista_Todos_Proveedores(int Bandera = 1, int ID_Proveedor = 0)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -232,17 +232,17 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 }
                 else
                 {
-                    return "{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}";
+                    return Content(HttpStatusCode.NotFound, "{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Inserta un Proveedor dado su modelo //
-        public string Insertar_Proveedor(Proveedor Inst)
+        public IHttpActionResult Insertar_Proveedor(Proveedor Inst)
         {
             Diccionario_ID_No_Existe = new Dictionary<int, int> {{ 3, Inst.ID_Proveedor } };
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
@@ -262,22 +262,22 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     CMD.ExecuteNonQuery();
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}";
+                    return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}");
                 }
                 else
                 {
-                    return Errores + "}";
+                    return Content(HttpStatusCode.BadRequest, Errores + "}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
 
         // Elimina un Proveedor dado su identificador //
-        public string Eliminar_Proveedor(int Id)
+        public IHttpActionResult Eliminar_Proveedor(int Id)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -287,16 +287,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 CMD.ExecuteNonQuery();
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
-                return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el instrumento\"}";
+                return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el instrumento\"}");
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Actualiza un Proveedor dado su modelo //
-        public string Actualizar_Proveedor(Proveedor Inst)
+        public IHttpActionResult Actualizar_Proveedor(Proveedor Inst)
         {
             Diccionario_ID_Existe = new Dictionary<int, int> { { 3, Inst.ID_Proveedor } };
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
@@ -315,16 +315,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     CMD.ExecuteNonQuery();
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}";
+                    return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}");
                 }
                 else
                 {
-                    return Errores + "}";
+                    return Content(HttpStatusCode.BadRequest, Errores + "}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
         #endregion
@@ -332,7 +332,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
 
         #region CRUD : Controlador Estuche 
         // Devuelve la lista total de todos los Estuches //
-        public string Devolver_Lista_Todos_Estuches(int Bandera = 1, int ID_Estuche = 0)
+        public dynamic Devolver_Lista_Todos_Estuches(int Bandera = 1, int ID_Estuche = 0)
         {        
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -366,17 +366,17 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 }
                 else
                 {
-                    return "{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}";
+                    return Content(HttpStatusCode.NotFound,"{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Inserta un Estuche dado su modelo //
-        public string Insertar_Estuche(Estuche Inst)
+        public IHttpActionResult Insertar_Estuche(Estuche Inst)
         {
             Diccionario_ID_No_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }};
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
@@ -396,21 +396,21 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     CMD.ExecuteNonQuery();
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}";
+                    return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}");
                 }
                 else
                 {
-                    return Errores + "}";
+                    return Content(HttpStatusCode.BadRequest, Errores + "}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Elimina un Estuche dado su identificador //
-        public string Eliminar_Estuche(int Id)
+        public IHttpActionResult Eliminar_Estuche(int Id)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -420,16 +420,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 CMD.ExecuteNonQuery();
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
-                return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el Estuche\"}";
+                return Content(HttpStatusCode.OK ,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el Estuche\"}");
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable ,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Actualiza un Estuche dado su modelo //
-        public string Actualizar_Estuche(Estuche Inst)
+        public IHttpActionResult Actualizar_Estuche(Estuche Inst)
         {
             Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche } };
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
@@ -448,16 +448,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     CMD.ExecuteNonQuery();
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}";
+                    return Content(HttpStatusCode.OK ,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}");
                 }
                 else
                 {
-                    return Errores + "}";
+                    return Content(HttpStatusCode.BadRequest, Errores + "}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
         #endregion
@@ -497,17 +497,17 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 }
                 else
                 {
-                    return "{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}";
+                    return Content(HttpStatusCode.BadRequest, "{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
                 }
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Inserta un Estuche dado su modelo //
-        public string Insertar_Accesorio(Accesorio Inst)
+        public IHttpActionResult Insertar_Accesorio(Accesorio Inst)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -527,16 +527,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 }
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
-                return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}";
+                return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}");
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Elimina un Estuche dado su identificador //
-        public string Eliminar_Accesorio(int Id)
+        public IHttpActionResult Eliminar_Accesorio(int Id)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -546,16 +546,16 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 CMD.ExecuteNonQuery();
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
-                return "{\"Cod_Resultado\": 1,\"Mensaje\": \"El Accesorio ha sido eliminado\"}";
+                return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"El Accesorio ha sido eliminado\"}");
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
 
         // Actualiza un Estuche dado su modelo //
-        public string Actualizar_Accesorio(Accesorio Inst)
+        public IHttpActionResult Actualizar_Accesorio(Accesorio Inst)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -575,11 +575,11 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 }
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
-                return "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}";
+                return Content(HttpStatusCode.OK,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}");
             }
             else
             {
-                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                return Content(HttpStatusCode.ServiceUnavailable ,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
             }
         }
         #endregion

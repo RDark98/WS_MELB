@@ -23,8 +23,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
     {
         private ConexionBBDD Instancia_BBDD;
         private SqlDataReader SqlReader;
-        private SqlCommand CMD;
-        private string Errores;
+        private SqlCommand CMD;       
 
         // Inicializa la conexión hacia la BBDD //
         public Operaciones_Registro_Academico()
