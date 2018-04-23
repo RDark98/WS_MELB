@@ -17,7 +17,7 @@ namespace MELB_WS.Controllers
         
         // Retorno de toda la coleccion de datos //
         [SwaggerOperation("GetAll")]
-        public dynamic  Get()
+        public dynamic Get()
         {
             return Instancia_OP.Devolver_Lista_Todos_Instrumentos();            
         }
@@ -26,9 +26,9 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public dynamic Get(int ID)
+        public IHttpActionResult Get(int ID)
         {
-            return Content(HttpStatusCode.OK,Instancia_OP.Devolver_Lista_Todos_Instrumentos(0,ID));
+            return Instancia_OP.Devolver_Lista_Todos_Instrumentos(0,ID);
         }
 
         // Creacion de un nuevo registro //
@@ -39,11 +39,11 @@ namespace MELB_WS.Controllers
         {
             if (ModelState.IsValid && Ins != null)
             {
-                return Content(HttpStatusCode.OK,Instancia_OP.Insertar_Instrumento(Ins));
+                return Instancia_OP.Insertar_Instrumento(Ins);
             }            
             else 
             {
-                return Content(HttpStatusCode.BadRequest, "{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}");   
+                return BadRequest("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Asegurate de ingresar bien los datos\",\"Descripcion_Error\":\"El modelo enviado al servidor no es correcto\"}");           
             }
         }
 
@@ -59,7 +59,7 @@ namespace MELB_WS.Controllers
             }
             else
             {
-                return Content(HttpStatusCode.BadRequest,"{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}");                
+                return BadRequest("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Asegurate de ingresar bien los datos\",\"Descripcion_Error\":\"El modelo enviado al servidor no es correcto\"}");
             }
         }
 
@@ -69,7 +69,7 @@ namespace MELB_WS.Controllers
         [SwaggerResponse(HttpStatusCode.NotFound)]
         public IHttpActionResult Delete(int ID)
         {
-            return Content(HttpStatusCode.OK,Instancia_OP.Eliminar_Instrumento(ID));
+            return Instancia_OP.Eliminar_Instrumento(ID);
         }
     }
 }

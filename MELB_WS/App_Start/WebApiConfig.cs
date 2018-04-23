@@ -15,7 +15,6 @@ namespace MELB_WS
             var Cors = new EnableCorsAttribute("*", "*", "*");
             config.EnableCors(Cors);
 
-            GlobalConfiguration.Configuration.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
             // Rutas de Web API
             config.MapHttpAttributeRoutes();

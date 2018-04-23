@@ -85,17 +85,17 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 }
                 else
                 {
-                    return Content(HttpStatusCode.NotFound,"{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
+                    return NotFound();
                 }
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError();
             }
         }
 
         // Inserta un instrumento dado su modelo //
-        public IHttpActionResult Insertar_Instrumento(Instrumento Inst)
+        public dynamic Insertar_Instrumento(Instrumento Inst)
         {
             if(Inst.Tipo_Ubicacion == "1"){ Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor } };}
             else { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor },{ 4,Convert.ToInt32(Inst.ID_Aula)}};}        
@@ -131,7 +131,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
 
@@ -190,7 +190,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
         #endregion
@@ -237,7 +237,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
 
@@ -271,7 +271,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
 
@@ -291,7 +291,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
 
@@ -324,7 +324,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
         #endregion
@@ -371,7 +371,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
 
@@ -405,7 +405,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
 
@@ -424,7 +424,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable ,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
 
@@ -457,7 +457,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
             }
         }
         #endregion
