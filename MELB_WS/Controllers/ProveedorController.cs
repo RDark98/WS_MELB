@@ -16,7 +16,7 @@ namespace MELB_WS.Controllers
 
         // Retorno de toda la coleccion de datos //
         [SwaggerOperation("GetAll")]
-        public dynamic Get()
+        public string Get()
         {
             return Instancia_OP.Devolver_Lista_Todos_Proveedores();
         }
@@ -25,7 +25,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public dynamic Get(int ID)
+        public string Get(int ID)
         {
             return Instancia_OP.Devolver_Lista_Todos_Proveedores(0,ID);
         }
@@ -34,7 +34,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Create")]
         [SwaggerResponse(HttpStatusCode.Created)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public IHttpActionResult Post([FromBody]Proveedor Ins)
+        public string Post([FromBody]Proveedor Ins)
         {
             if (ModelState.IsValid && Ins != null)
             {
@@ -42,7 +42,7 @@ namespace MELB_WS.Controllers
             }
             else
             {
-                return Content(HttpStatusCode.BadRequest,"{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}");                
+                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}";                
             }
         }
 
@@ -50,7 +50,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Update")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public IHttpActionResult Put([FromBody]Proveedor Ins)
+        public string Put([FromBody]Proveedor Ins)
         {
             if (ModelState.IsValid && Ins != null)
             {
@@ -58,7 +58,7 @@ namespace MELB_WS.Controllers
             }
             else
             {
-                return Content(HttpStatusCode.BadRequest,"{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}");                
+                return "{\"Cod_Resultado\": -1,\"Mensaje\": \"Asegurate de introducir correctamente todos los datos\"}";                
             }
 
         }
@@ -67,7 +67,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Delete")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public IHttpActionResult Delete(int ID)
+        public string Delete(int ID)
         {
             return Instancia_OP.Eliminar_Proveedor(ID);
         }

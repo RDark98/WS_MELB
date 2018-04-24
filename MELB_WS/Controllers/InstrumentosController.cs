@@ -8,6 +8,8 @@ using Swashbuckle.Swagger.Annotations;
 using MELB_WS.Models.Inventario.Operaciones;
 using MELB_WS.Models.Inventario;
 using System.Web.Http.Cors;
+using Newtonsoft.Json;
+using System.Web.Script.Serialization;
 
 namespace MELB_WS.Controllers
 {
@@ -17,7 +19,7 @@ namespace MELB_WS.Controllers
         
         // Retorno de toda la coleccion de datos //
         [SwaggerOperation("GetAll")]
-        public dynamic Get()
+        public string Get()
         {
             return Instancia_OP.Devolver_Lista_Todos_Instrumentos();            
         }
@@ -26,7 +28,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("GetById")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public IHttpActionResult Get(int ID)
+        public string Get(int ID)
         {
             return Instancia_OP.Devolver_Lista_Todos_Instrumentos(0,ID);
         }
@@ -35,15 +37,15 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Create")]
         [SwaggerResponse(HttpStatusCode.Created)]
         [SwaggerResponse(HttpStatusCode.NotFound)]        
-        public IHttpActionResult Post([FromBody]Instrumento Ins)
+        public string Post([FromBody]Instrumento Ins)
         {
             if (ModelState.IsValid && Ins != null)
             {
-                return Instancia_OP.Insertar_Instrumento(Ins);
+                return Instancia_OP.Insertar_Instrumento(Ins);               
             }            
             else 
             {
-                return BadRequest("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Asegurate de ingresar bien los datos\",\"Descripcion_Error\":\"El modelo enviado al servidor no es correcto\"}");           
+                return "{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Asegurate de ingresar bien los datos\",\"Descripcion_Error\":\"El modelo enviado al servidor no es correcto\"}";           
             }
         }
 
@@ -51,7 +53,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Update")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public IHttpActionResult Put([FromBody]Instrumento Ins)
+        public string Put([FromBody]Instrumento Ins)
         {
             if (ModelState.IsValid && Ins != null)
             {
@@ -59,7 +61,7 @@ namespace MELB_WS.Controllers
             }
             else
             {
-                return BadRequest("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Asegurate de ingresar bien los datos\",\"Descripcion_Error\":\"El modelo enviado al servidor no es correcto\"}");
+                return "{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Asegurate de ingresar bien los datos\",\"Descripcion_Error\":\"El modelo enviado al servidor no es correcto\"}";
             }
         }
 
@@ -67,7 +69,7 @@ namespace MELB_WS.Controllers
         [SwaggerOperation("Delete")]
         [SwaggerResponse(HttpStatusCode.OK)]
         [SwaggerResponse(HttpStatusCode.NotFound)]
-        public IHttpActionResult Delete(int ID)
+        public string Delete(int ID)
         {
             return Instancia_OP.Eliminar_Instrumento(ID);
         }

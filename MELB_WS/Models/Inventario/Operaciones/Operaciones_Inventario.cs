@@ -17,7 +17,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
                       los procesos de inventario.
     */
 
-    public class Operaciones_Inventario  : ApiController
+    public class Operaciones_Inventario
     {
         private ConexionBBDD Instancia_BBDD;
         private SqlDataReader SqlReader;
@@ -29,13 +29,13 @@ namespace MELB_WS.Models.Inventario.Operaciones
         // Inicializa la conexión hacia la BBDD //
         public Operaciones_Inventario()
         {
-            Instancia_BBDD = new ConexionBBDD(); 
-            Errores = "{\"Cod_Resultado\": -2,\"Errores\": {";
+            Instancia_BBDD = new ConexionBBDD();
+            Errores = "{\"Exito\":true,\"Codigo\":-5,\"Mensaje_Cabecera\":\"Aviso\",\"Errores\": [";
         }
 
         #region CRUD : Controlador Instrumento 
         // Devuelve la lista total de todos los instrumentos //
-        public dynamic Devolver_Lista_Todos_Instrumentos(int Bandera = 1 , int ID_Instrumento = 0)
+        public string Devolver_Lista_Todos_Instrumentos(int Bandera = 1, int ID_Instrumento = 0)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
@@ -85,24 +85,24 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 }
                 else
                 {
-                    return NotFound();
+                    return "{\"Exito\":true,\"Codigo\":0,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"No se encontraron resultados con el criterio de busqueda\",\"Descripcion_Error\":\"El procedimiento almacenado no retorno nada\"}";
                 }
             }
             else
             {
-                return InternalServerError();
+                return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
             }
         }
 
         // Inserta un instrumento dado su modelo //
-        public dynamic Insertar_Instrumento(Instrumento Inst)
+        public string Insertar_Instrumento(Instrumento Inst)
         {
-            if(Inst.Tipo_Ubicacion == "1"){ Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor } };}
-            else { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor },{ 4,Convert.ToInt32(Inst.ID_Aula)}};}        
-            Dictionary<int, int> Diccionario_ID_No_Existe = new Dictionary<int, int> {{ 2, Inst.ID_Instrumento }};
+            if (Inst.Tipo_Ubicacion == "1") { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor } }; }
+            else { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor }, { 4, Convert.ToInt32(Inst.ID_Aula) } }; }
+            Dictionary<int, int> Diccionario_ID_No_Existe = new Dictionary<int, int> { { 2, Inst.ID_Instrumento } };
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
-                if (Validar_ID_Controlador_Inventario(Diccionario_ID_Existe,1) == 0 & Validar_ID_Controlador_Inventario(Diccionario_ID_No_Existe,0) == 0 )
+                if (Validar_ID_Controlador_Inventario(Diccionario_ID_Existe, 1) == 0 & Validar_ID_Controlador_Inventario(Diccionario_ID_No_Existe, 0) == 0)
                 {
                     CMD = new SqlCommand("I_Insertar_Instrumento", Instancia_BBDD.Conexion);
                     CMD.CommandType = CommandType.StoredProcedure;
@@ -122,43 +122,43 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     CMD.ExecuteNonQuery();
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return Content(HttpStatusCode.OK,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}");
+                    return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se ha añadido el instrumento existosamente\"}";
                 }
                 else
                 {
-                    return Content(HttpStatusCode.BadRequest,Errores + "}");
+                    return  Errores + "]}";
                 }
             }
             else
             {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
+                return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
             }
         }
 
         // Elimina un instrumento dado su identificador //
-        public IHttpActionResult Eliminar_Instrumento (int Id)
+        public string Eliminar_Instrumento(int Id)
         {
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
                 CMD = new SqlCommand("I_Eliminar_Instrumento", Instancia_BBDD.Conexion);
                 CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Id;        
+                CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Id;
                 CMD.ExecuteNonQuery();
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
-                return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el instrumento\"}");
+                return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se elimino el instrumento\"";
             }
             else
             {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
+                return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
             }
         }
 
         // Actualiza un instrumento dado su modelo //
-        public IHttpActionResult Actualizar_Instrumento (Instrumento Inst)
+        public string Actualizar_Instrumento(Instrumento Inst)
         {
-            if (Inst.Tipo_Ubicacion == "1") { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor }, { 2, Inst.ID_Instrumento }}; }
-            else { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor }, { 4, Convert.ToInt32(Inst.ID_Aula) }, { 2, Inst.ID_Instrumento } }; }            
+            if (Inst.Tipo_Ubicacion == "1") { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor }, { 2, Inst.ID_Instrumento } }; }
+            else { Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }, { 3, Inst.ID_Proveedor }, { 4, Convert.ToInt32(Inst.ID_Aula) }, { 2, Inst.ID_Instrumento } }; }
             if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
             {
                 if (Validar_ID_Controlador_Inventario(Diccionario_ID_Existe, 1) == 0)
@@ -181,512 +181,516 @@ namespace MELB_WS.Models.Inventario.Operaciones
                     CMD.ExecuteNonQuery();
                     CMD.Dispose();
                     Instancia_BBDD.Cerrar_Conexion();
-                    return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}");                    
+                    return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se actualizo el instrumento exitosamente\"}";
                 }
                 else
                 {
-                    return Content(HttpStatusCode.BadRequest,Errores + "}");
+                    return Errores + "]}";
                 }
             }
             else
             {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
+                return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
             }
         }
         #endregion
 
 
-        #region CRUD : Controlador Proveedor 
-        // Lista de todos los Proveedores e Individual //
-        public dynamic Devolver_Lista_Todos_Proveedores(int Bandera = 1, int ID_Proveedor = 0)
-        {
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+            #region CRUD : Controlador Proveedor 
+            // Lista de todos los Proveedores e Individual //
+            public String Devolver_Lista_Todos_Proveedores(int Bandera = 1, int ID_Proveedor = 0)
             {
-                CMD = new SqlCommand("I_Listado_Proveedores", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Proveedor", SqlDbType.Int).Value = ID_Proveedor;
-                CMD.Parameters.Add("@Bandera", SqlDbType.Bit).Value = Bandera;
-                SqlReader = CMD.ExecuteReader();
-                List<Proveedor> Lista_Proveedor = new List<Proveedor>();
-                if (SqlReader.HasRows)
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
                 {
-                    while (SqlReader.Read())
-                    {
-                        Proveedor Nuevo_Proveedor = new Proveedor();
-                        Nuevo_Proveedor.ID_Proveedor = SqlReader.GetInt32(0);
-                        Nuevo_Proveedor.Nombre = SqlReader.GetString(1);
-                        Nuevo_Proveedor.Telefono_1 = SqlReader.GetDecimal(2);
-                        Nuevo_Proveedor.Telefono_2 = SqlReader.GetDecimal(3);
-                        Nuevo_Proveedor.Correo = SqlReader.GetString(4);
-                        Nuevo_Proveedor.Direccion = SqlReader.GetString(5);
-                        Nuevo_Proveedor.Imagen = SqlReader.GetString(6);
-                        Lista_Proveedor.Add(Nuevo_Proveedor);
-                    }
-
-                    CMD.Dispose();
-                    Instancia_BBDD.Cerrar_Conexion();
-                    return JsonConvert.SerializeObject(Lista_Proveedor, Formatting.None, new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    });
-                }
-                else
-                {
-                    return Content(HttpStatusCode.NotFound, "{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
-                }
-            }
-            else
-            {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
-            }
-        }
-
-        // Inserta un Proveedor dado su modelo //
-        public IHttpActionResult Insertar_Proveedor(Proveedor Inst)
-        {
-            Diccionario_ID_No_Existe = new Dictionary<int, int> {{ 3, Inst.ID_Proveedor } };
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                if (Validar_ID_Controlador_Inventario(Diccionario_ID_No_Existe, 0) == 0)
-                {
-                    CMD = new SqlCommand("I_Insertar_Proveedor", Instancia_BBDD.Conexion);
+                    CMD = new SqlCommand("I_Listado_Proveedores", Instancia_BBDD.Conexion);
                     CMD.CommandType = CommandType.StoredProcedure;
-                    CMD.Parameters.Add("@ID_Proveedor", SqlDbType.Int).Value = Inst.ID_Proveedor;
-                    CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
-                    CMD.Parameters.Add("@Telefono_1", SqlDbType.Decimal).Value = Inst.Telefono_1;
-                    CMD.Parameters.Add("@Telefono_2", SqlDbType.Decimal).Value = Inst.Telefono_2;
-                    CMD.Parameters.Add("@Correo", SqlDbType.VarChar).Value = Inst.Correo;
-                    CMD.Parameters.Add("@Direccion", SqlDbType.VarChar).Value = Inst.Direccion;
-                    CMD.Parameters.Add("@Imagen", SqlDbType.VarChar).Value = Inst.Imagen;
-
-                    CMD.ExecuteNonQuery();
-                    CMD.Dispose();
-                    Instancia_BBDD.Cerrar_Conexion();
-                    return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}");
-                }
-                else
-                {
-                    return Content(HttpStatusCode.BadRequest, Errores + "}");
-                }
-            }
-            else
-            {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
-            }
-        }
-
-
-        // Elimina un Proveedor dado su identificador //
-        public IHttpActionResult Eliminar_Proveedor(int Id)
-        {
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                CMD = new SqlCommand("I_Eliminar_Proveedor", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Proveedor", SqlDbType.Int).Value = Id;
-                CMD.ExecuteNonQuery();
-                CMD.Dispose();
-                Instancia_BBDD.Cerrar_Conexion();
-                return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el instrumento\"}");
-            }
-            else
-            {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
-            }
-        }
-
-        // Actualiza un Proveedor dado su modelo //
-        public IHttpActionResult Actualizar_Proveedor(Proveedor Inst)
-        {
-            Diccionario_ID_Existe = new Dictionary<int, int> { { 3, Inst.ID_Proveedor } };
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                if (Validar_ID_Controlador_Inventario(Diccionario_ID_Existe, 1) == 0)
-                {
-                    CMD = new SqlCommand("I_Actualizar_Proveedor", Instancia_BBDD.Conexion);
-                    CMD.CommandType = CommandType.StoredProcedure;
-                    CMD.Parameters.Add("@ID_Proveedor", SqlDbType.Int).Value = Inst.ID_Proveedor;
-                    CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
-                    CMD.Parameters.Add("@Telefono_1", SqlDbType.Decimal).Value = Inst.Telefono_1;
-                    CMD.Parameters.Add("@Telefono_2", SqlDbType.Decimal).Value = Inst.Telefono_2;
-                    CMD.Parameters.Add("@Correo", SqlDbType.VarChar).Value = Inst.Correo;
-                    CMD.Parameters.Add("@Direccion", SqlDbType.VarChar).Value = Inst.Direccion;
-                    CMD.Parameters.Add("@Imagen", SqlDbType.VarChar).Value = Inst.Imagen;
-                    CMD.ExecuteNonQuery();
-                    CMD.Dispose();
-                    Instancia_BBDD.Cerrar_Conexion();
-                    return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}");
-                }
-                else
-                {
-                    return Content(HttpStatusCode.BadRequest, Errores + "}");
-                }
-            }
-            else
-            {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
-            }
-        }
-        #endregion
-
-
-        #region CRUD : Controlador Estuche 
-        // Devuelve la lista total de todos los Estuches //
-        public dynamic Devolver_Lista_Todos_Estuches(int Bandera = 1, int ID_Estuche = 0)
-        {        
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                CMD = new SqlCommand("I_Listado_Estuches", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Estuche", SqlDbType.Int).Value = ID_Estuche;
-                CMD.Parameters.Add("@Bandera", SqlDbType.Bit).Value = Bandera;
-                SqlReader = CMD.ExecuteReader();
-                List<Estuche> Lista_Estuche = new List<Estuche>();
-                if (SqlReader.HasRows)
-                {
-                    while (SqlReader.Read())
+                    CMD.Parameters.Add("@ID_Proveedor", SqlDbType.Int).Value = ID_Proveedor;
+                    CMD.Parameters.Add("@Bandera", SqlDbType.Bit).Value = Bandera;
+                    SqlReader = CMD.ExecuteReader();
+                    List<Proveedor> Lista_Proveedor = new List<Proveedor>();
+                    if (SqlReader.HasRows)
                     {
-                        Estuche Nuevo_Estuche = new Estuche();
-                        Nuevo_Estuche.ID_Estuche = SqlReader.GetInt32(0);
-                        Nuevo_Estuche.Nombre = SqlReader.GetString(1);
-                        Nuevo_Estuche.Marca = SqlReader.GetString(2);
-                        Nuevo_Estuche.Material = SqlReader.GetString(3);
-                        Nuevo_Estuche.Color = SqlReader.GetString(4);
-                        Nuevo_Estuche.Estado = SqlReader.GetString(5);
-
-                        Lista_Estuche.Add(Nuevo_Estuche);
-                    }
-
-                    CMD.Dispose();
-                    Instancia_BBDD.Cerrar_Conexion();
-                    return JsonConvert.SerializeObject(Lista_Estuche, Formatting.None, new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    });
-                }
-                else
-                {
-                    return Content(HttpStatusCode.NotFound,"{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
-                }
-            }
-            else
-            {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
-            }
-        }
-
-        // Inserta un Estuche dado su modelo //
-        public IHttpActionResult Insertar_Estuche(Estuche Inst)
-        {
-            Diccionario_ID_No_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche }};
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                if (Validar_ID_Controlador_Inventario(Diccionario_ID_No_Existe, 0) == 0)
-                {
-
-                    CMD = new SqlCommand("I_Insertar_Estuche", Instancia_BBDD.Conexion);
-                    CMD.CommandType = CommandType.StoredProcedure;
-                    CMD.Parameters.Add("@ID_Estuche", SqlDbType.Int).Value = Inst.ID_Estuche;
-                    CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
-                    CMD.Parameters.Add("@Marca", SqlDbType.VarChar).Value = Inst.Marca;
-                    CMD.Parameters.Add("@Material", SqlDbType.VarChar).Value = Inst.Material;
-                    CMD.Parameters.Add("@Color", SqlDbType.VarChar).Value = Inst.Color;
-                    CMD.Parameters.Add("@Estado", SqlDbType.VarChar).Value = Inst.Estado;
-
-                    CMD.ExecuteNonQuery();
-                    CMD.Dispose();
-                    Instancia_BBDD.Cerrar_Conexion();
-                    return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}");
-                }
-                else
-                {
-                    return Content(HttpStatusCode.BadRequest, Errores + "}");
-                }
-            }
-            else
-            {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
-            }
-        }
-
-        // Elimina un Estuche dado su identificador //
-        public IHttpActionResult Eliminar_Estuche(int Id)
-        {
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                CMD = new SqlCommand("I_Eliminar_Estuche", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Estuche", SqlDbType.Int).Value = Id;
-                CMD.ExecuteNonQuery();
-                CMD.Dispose();
-                Instancia_BBDD.Cerrar_Conexion();
-                return Content(HttpStatusCode.OK ,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se elimino el Estuche\"}");
-            }
-            else
-            {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
-            }
-        }
-
-        // Actualiza un Estuche dado su modelo //
-        public IHttpActionResult Actualizar_Estuche(Estuche Inst)
-        {
-            Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche } };
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                if (Validar_ID_Controlador_Inventario(Diccionario_ID_Existe, 1) == 0)
-                {
-
-                    CMD = new SqlCommand("I_Actualizar_Estuche", Instancia_BBDD.Conexion);
-                    CMD.CommandType = CommandType.StoredProcedure;
-                    CMD.Parameters.Add("@ID_Estuche", SqlDbType.Int).Value = Inst.ID_Estuche;
-                    CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
-                    CMD.Parameters.Add("@Marca", SqlDbType.VarChar).Value = Inst.Marca;
-                    CMD.Parameters.Add("@Material", SqlDbType.VarChar).Value = Inst.Material;
-                    CMD.Parameters.Add("@Color", SqlDbType.VarChar).Value = Inst.Color;
-                    CMD.Parameters.Add("@Estado", SqlDbType.VarChar).Value = Inst.Estado;
-                    CMD.ExecuteNonQuery();
-                    CMD.Dispose();
-                    Instancia_BBDD.Cerrar_Conexion();
-                    return Content(HttpStatusCode.OK ,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}");
-                }
-                else
-                {
-                    return Content(HttpStatusCode.BadRequest, Errores + "}");
-                }
-            }
-            else
-            {
-                return InternalServerError(new System.ArgumentException("{\"Exito\":\"false\",\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error en el servidor al procesar la petición\",\"Descripcion_Error\":\"No se puedo establecer una conexión con la Base de datos\"}", "Error"));
-            }
-        }
-        #endregion
-
-
-        #region CRUD : Controlador Accesorios 
-        // Devuelve la lista total de todos los Estuches //
-        public dynamic Devolver_Lista_Todos_Accesorios(int Bandera = 1, int ID_Accesorio = 0)
-        {
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                CMD = new SqlCommand("I_Listado_Accesorios", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = ID_Accesorio;
-                CMD.Parameters.Add("@Bandera", SqlDbType.Bit).Value = Bandera;
-                SqlReader = CMD.ExecuteReader();
-                List<Accesorio> Lista_Accesorio = new List<Accesorio>();
-                if (SqlReader.HasRows)
-                {
-                    while (SqlReader.Read())
-                    {
-                        Accesorio Nuevo_Accesorio = new Accesorio();
-                        Nuevo_Accesorio.ID_Accesorio = SqlReader.GetInt32(0);
-                        Nuevo_Accesorio.ID_Instrumento = SqlReader.GetInt32(1);
-                        Nuevo_Accesorio.Nombre = SqlReader.GetString(2);
-                        Nuevo_Accesorio.Descripcion = SqlReader.GetString(3);
-                        
-                        Lista_Accesorio.Add(Nuevo_Accesorio);
-                    }
-
-                    CMD.Dispose();
-                    Instancia_BBDD.Cerrar_Conexion();
-                    return JsonConvert.SerializeObject(Lista_Accesorio, Formatting.None, new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    });
-                }
-                else
-                {
-                    return Content(HttpStatusCode.BadRequest, "{\"Cod_Resultado\": 0,\"Mensaje\": \"La consulta no devolvio resultados\"}");
-                }
-            }
-            else
-            {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
-            }
-        }
-
-        // Inserta un Estuche dado su modelo //
-        public IHttpActionResult Insertar_Accesorio(Accesorio Inst)
-        {
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                CMD = new SqlCommand("I_Insertar_Accesorio", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Inst.ID_Accesorio;
-                CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Inst.ID_Instrumento;
-                CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
-                CMD.Parameters.Add("@Descripcion", SqlDbType.VarChar).Value = Inst.Descripcion;
-                CMD.ExecuteNonQuery();
-                CMD.Dispose();
-                Instancia_BBDD.Cerrar_Conexion();
-                return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"Se inserto el nuevo registro\"}");
-            }
-            else
-            {
-                return Content(HttpStatusCode.ServiceUnavailable,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
-            }
-        }
-
-        // Elimina un Estuche dado su identificador //
-        public IHttpActionResult Eliminar_Accesorio(int Id)
-        {
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                CMD = new SqlCommand("I_Eliminar_Accesorio", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Id;
-                CMD.ExecuteNonQuery();
-                CMD.Dispose();
-                Instancia_BBDD.Cerrar_Conexion();
-                return Content(HttpStatusCode.OK, "{\"Cod_Resultado\": 1,\"Mensaje\": \"El Accesorio ha sido eliminado\"}");
-            }
-            else
-            {
-                return Content(HttpStatusCode.ServiceUnavailable, "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
-            }
-        }
-
-        // Actualiza un Estuche dado su modelo //
-        public IHttpActionResult Actualizar_Accesorio(Accesorio Inst)
-        {
-            if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
-            {
-                CMD = new SqlCommand("I_Actualizar_Accesorio", Instancia_BBDD.Conexion);
-                CMD.CommandType = CommandType.StoredProcedure;
-                CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Inst.ID_Accesorio;
-                CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Inst.ID_Instrumento;
-                CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
-                CMD.Parameters.Add("@Descripcion", SqlDbType.VarChar).Value = Inst.Descripcion;
-                CMD.ExecuteNonQuery();
-                CMD.Dispose();
-                Instancia_BBDD.Cerrar_Conexion();
-                return Content(HttpStatusCode.OK,"{\"Cod_Resultado\": 1,\"Mensaje\": \"Se actualizo correctamente el registro\"}");
-            }
-            else
-            {
-                return Content(HttpStatusCode.ServiceUnavailable ,"{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}");
-            }
-        }
-        #endregion
-
-        #region Validaciones: CRUD
-
-        /* 
-           Descripcion: Valida que los ID en BD no esten repetidos 
-           Valores del diccionario:
-               1 : Validacion ID_Estuche
-               2 : Validacion ID_Instrumento
-               3 : Validacion ID_Proveedor
-               4 : Validacion ID_Aula
-            Valores de la bandera
-            0 : Generar nuevo tipo,
-            1 : Validar que el tipo ya exista
-        */
-        public int Validar_ID_Controlador_Inventario(Dictionary<int, int> Lista_ID,int Bandera)
-        {            
-            int Contador_Errores = 0;
-            foreach (KeyValuePair<int, int> Entrada in Lista_ID )
-            {
-                if(Entrada.Key == 1)
-                {
-                    CMD = new SqlCommand("SELECT DBO.Validar_ID_Estuche(@ID_Estuche)",Instancia_BBDD.Conexion);
-                    CMD.CommandType = CommandType.Text;
-                    CMD.Parameters.Add(new SqlParameter("@ID_Estuche",Entrada.Value));
-                    string Resultado = CMD.ExecuteScalar().ToString();
-                    // Validando que el tipo ya exista //
-                    if (Bandera == 1)
-                    {
-                        if ( Resultado == "0")
+                        while (SqlReader.Read())
                         {
-                            Errores = Errores + "[\"Mensaje\": \"El ID de estuche digitado no existe en la base de datos\"]";
-                            Contador_Errores++;
+                            Proveedor Nuevo_Proveedor = new Proveedor();
+                            Nuevo_Proveedor.ID_Proveedor = SqlReader.GetInt32(0);
+                            Nuevo_Proveedor.Nombre = SqlReader.GetString(1);
+                            Nuevo_Proveedor.Telefono_1 = SqlReader.GetDecimal(2);
+                            Nuevo_Proveedor.Telefono_2 = SqlReader.GetDecimal(3);
+                            Nuevo_Proveedor.Correo = SqlReader.GetString(4);
+                            Nuevo_Proveedor.Direccion = SqlReader.GetString(5);
+                            Nuevo_Proveedor.Imagen = SqlReader.GetString(6);
+                            Lista_Proveedor.Add(Nuevo_Proveedor);
                         }
+
+                        CMD.Dispose();
+                        Instancia_BBDD.Cerrar_Conexion();
+                        return JsonConvert.SerializeObject(Lista_Proveedor, Formatting.None, new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        });
                     }
                     else
                     {
-                        if (Resultado == "1")
-                        {
-                            Errores = Errores + "[\"Mensaje\": \"El ID de estuche digitado ya existe en la base de datos\"]";
-                            Contador_Errores++;
-                        }
+                        return "{\"Exito\":true,\"Codigo\":0,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"No se encontraron resultados con el criterio de busqueda\",\"Descripcion_Error\":\"El procedimiento almacenado no retorno nada\"}";
                     }
                 }
-                else if(Entrada.Key == 2)
+                else
                 {
-                    CMD = new SqlCommand("SELECT DBO.Validar_ID_Instrumento(@ID_Instrumento)", Instancia_BBDD.Conexion);
-                    CMD.CommandType = CommandType.Text;
-                    CMD.Parameters.Add(new SqlParameter("@ID_Instrumento", Entrada.Value));
-                    string Resultado = CMD.ExecuteScalar().ToString();
-                    // Validando que el tipo ya exista //
-                    if (Bandera == 1)
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+
+                }
+            }
+
+            // Inserta un Proveedor dado su modelo //
+            public string Insertar_Proveedor(Proveedor Inst)
+            {
+                Diccionario_ID_No_Existe = new Dictionary<int, int> { { 3, Inst.ID_Proveedor } };
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    if (Validar_ID_Controlador_Inventario(Diccionario_ID_No_Existe, 0) == 0)
                     {
-                        if (Resultado == "0")
-                        {
-                            Errores = Errores + "[\"Mensaje\": \"El ID de instrumento digitado no existe en la base de datos\"]";
-                            Contador_Errores++;
-                        }
+                        CMD = new SqlCommand("I_Insertar_Proveedor", Instancia_BBDD.Conexion);
+                        CMD.CommandType = CommandType.StoredProcedure;
+                        CMD.Parameters.Add("@ID_Proveedor", SqlDbType.Int).Value = Inst.ID_Proveedor;
+                        CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
+                        CMD.Parameters.Add("@Telefono_1", SqlDbType.Decimal).Value = Inst.Telefono_1;
+                        CMD.Parameters.Add("@Telefono_2", SqlDbType.Decimal).Value = Inst.Telefono_2;
+                        CMD.Parameters.Add("@Correo", SqlDbType.VarChar).Value = Inst.Correo;
+                        CMD.Parameters.Add("@Direccion", SqlDbType.VarChar).Value = Inst.Direccion;
+                        CMD.Parameters.Add("@Imagen", SqlDbType.VarChar).Value = Inst.Imagen;
+
+                        CMD.ExecuteNonQuery();
+                        CMD.Dispose();
+                        Instancia_BBDD.Cerrar_Conexion();
+                        return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se añadio el proveedor exitosamente\"";
                     }
                     else
                     {
-                        if (Resultado == "1")
-                        {
-                            Errores = Errores + "[\"Mensaje\": \"El ID de instrumento digitado ya existe en la base de datos\"]";
-                            Contador_Errores++;
-                        }
+                        return Errores + "]}";
                     }
                 }
-                else if(Entrada.Key == 3)
+                else
                 {
-                    CMD = new SqlCommand("SELECT DBO.Validar_ID_Proveedor(@ID_Proveedor)", Instancia_BBDD.Conexion);
-                    CMD.CommandType = CommandType.Text;
-                    CMD.Parameters.Add(new SqlParameter("@ID_Proveedor", Entrada.Value));
-                    string Resultado = CMD.ExecuteScalar().ToString();
-                    // Validando que el tipo ya exista //
-                    if (Bandera == 1)
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+
+
+            // Elimina un Proveedor dado su identificador //
+            public string Eliminar_Proveedor(int Id)
+            {
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    CMD = new SqlCommand("I_Eliminar_Proveedor", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Proveedor", SqlDbType.Int).Value = Id;
+                    CMD.ExecuteNonQuery();
+                    CMD.Dispose();
+                    Instancia_BBDD.Cerrar_Conexion();
+                    return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se elimino el proveedor exitosamente\"";
+                }
+                else
+                {
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+
+            // Actualiza un Proveedor dado su modelo //
+            public string Actualizar_Proveedor(Proveedor Inst)
+            {
+                Diccionario_ID_Existe = new Dictionary<int, int> { { 3, Inst.ID_Proveedor } };
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    if (Validar_ID_Controlador_Inventario(Diccionario_ID_Existe, 1) == 0)
                     {
-                        if (Resultado == "0")
-                        {
-                            Errores = Errores + "[\"Mensaje\": \"El ID de proveedor digitado no existe en la base de datos\"]";
-                            Contador_Errores++;
-                        }
+                        CMD = new SqlCommand("I_Actualizar_Proveedor", Instancia_BBDD.Conexion);
+                        CMD.CommandType = CommandType.StoredProcedure;
+                        CMD.Parameters.Add("@ID_Proveedor", SqlDbType.Int).Value = Inst.ID_Proveedor;
+                        CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
+                        CMD.Parameters.Add("@Telefono_1", SqlDbType.Decimal).Value = Inst.Telefono_1;
+                        CMD.Parameters.Add("@Telefono_2", SqlDbType.Decimal).Value = Inst.Telefono_2;
+                        CMD.Parameters.Add("@Correo", SqlDbType.VarChar).Value = Inst.Correo;
+                        CMD.Parameters.Add("@Direccion", SqlDbType.VarChar).Value = Inst.Direccion;
+                        CMD.Parameters.Add("@Imagen", SqlDbType.VarChar).Value = Inst.Imagen;
+                        CMD.ExecuteNonQuery();
+                        CMD.Dispose();
+                        Instancia_BBDD.Cerrar_Conexion();
+                        return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se actualizo el proveedor exitosamente\"";
                     }
                     else
                     {
-                        if (Resultado == "1")
-                        {
-                            Errores = Errores + "[\"Mensaje\": \"El ID de proveedor digitado ya existe en la base de datos\"]";
-                            Contador_Errores++;
-                        }
+                        return Errores + "]}";
                     }
                 }
-                else if (Entrada.Key == 4)
+                else
                 {
-                    CMD = new SqlCommand("SELECT DBO.Validar_ID_Aula(@ID_Aula)", Instancia_BBDD.Conexion);
-                    CMD.CommandType = CommandType.Text;
-                    CMD.Parameters.Add(new SqlParameter("@ID_Aula", Entrada.Value));
-                    string Resultado = CMD.ExecuteScalar().ToString();
-                    // Validando que el tipo ya exista //
-                    if (Bandera == 1)
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+            #endregion
+
+
+            #region CRUD : Controlador Estuche 
+            // Devuelve la lista total de todos los Estuches //
+            public string Devolver_Lista_Todos_Estuches(int Bandera = 1, int ID_Estuche = 0)
+            {
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    CMD = new SqlCommand("I_Listado_Estuches", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Estuche", SqlDbType.Int).Value = ID_Estuche;
+                    CMD.Parameters.Add("@Bandera", SqlDbType.Bit).Value = Bandera;
+                    SqlReader = CMD.ExecuteReader();
+                    List<Estuche> Lista_Estuche = new List<Estuche>();
+                    if (SqlReader.HasRows)
                     {
-                        if (Resultado == "0")
+                        while (SqlReader.Read())
                         {
-                            Errores = Errores + "[\"Mensaje\": \"El ID de aula digitado no existe en la base de datos\"]";
-                            Contador_Errores++;
+                            Estuche Nuevo_Estuche = new Estuche();
+                            Nuevo_Estuche.ID_Estuche = SqlReader.GetInt32(0);
+                            Nuevo_Estuche.Nombre = SqlReader.GetString(1);
+                            Nuevo_Estuche.Marca = SqlReader.GetString(2);
+                            Nuevo_Estuche.Material = SqlReader.GetString(3);
+                            Nuevo_Estuche.Color = SqlReader.GetString(4);
+                            Nuevo_Estuche.Estado = SqlReader.GetString(5);
+
+                            Lista_Estuche.Add(Nuevo_Estuche);
                         }
+
+                        CMD.Dispose();
+                        Instancia_BBDD.Cerrar_Conexion();
+                        return JsonConvert.SerializeObject(Lista_Estuche, Formatting.None, new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        });
                     }
                     else
                     {
-                        if (Resultado == "1")
+                        return "{\"Exito\":true,\"Codigo\":0,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"La busqueda no devolvio resultados\"";
+                    }
+                }
+                else
+                {
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+
+            // Inserta un Estuche dado su modelo //
+            public string Insertar_Estuche(Estuche Inst)
+            {
+                Diccionario_ID_No_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche } };
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    if (Validar_ID_Controlador_Inventario(Diccionario_ID_No_Existe, 0) == 0)
+                    {
+
+                        CMD = new SqlCommand("I_Insertar_Estuche", Instancia_BBDD.Conexion);
+                        CMD.CommandType = CommandType.StoredProcedure;
+                        CMD.Parameters.Add("@ID_Estuche", SqlDbType.Int).Value = Inst.ID_Estuche;
+                        CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
+                        CMD.Parameters.Add("@Marca", SqlDbType.VarChar).Value = Inst.Marca;
+                        CMD.Parameters.Add("@Material", SqlDbType.VarChar).Value = Inst.Material;
+                        CMD.Parameters.Add("@Color", SqlDbType.VarChar).Value = Inst.Color;
+                        CMD.Parameters.Add("@Estado", SqlDbType.VarChar).Value = Inst.Estado;
+
+                        CMD.ExecuteNonQuery();
+                        CMD.Dispose();
+                        Instancia_BBDD.Cerrar_Conexion();
+                        return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se añadio el estuche exitosamente\"";
+                    }
+                    else
+                    {
+                        return Errores + "]}";
+                    }
+                }
+                else
+                {
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+
+            // Elimina un Estuche dado su identificador //
+            public string Eliminar_Estuche(int Id)
+            {
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    CMD = new SqlCommand("I_Eliminar_Estuche", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Estuche", SqlDbType.Int).Value = Id;
+                    CMD.ExecuteNonQuery();
+                    CMD.Dispose();
+                    Instancia_BBDD.Cerrar_Conexion();
+                    return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se elimino el estuche exitosamente\"";
+                }
+                else
+                {
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+
+            // Actualiza un Estuche dado su modelo //
+            public string Actualizar_Estuche(Estuche Inst)
+            {
+                Diccionario_ID_Existe = new Dictionary<int, int> { { 1, Inst.ID_Estuche } };
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    if (Validar_ID_Controlador_Inventario(Diccionario_ID_Existe, 1) == 0)
+                    {
+
+                        CMD = new SqlCommand("I_Actualizar_Estuche", Instancia_BBDD.Conexion);
+                        CMD.CommandType = CommandType.StoredProcedure;
+                        CMD.Parameters.Add("@ID_Estuche", SqlDbType.Int).Value = Inst.ID_Estuche;
+                        CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
+                        CMD.Parameters.Add("@Marca", SqlDbType.VarChar).Value = Inst.Marca;
+                        CMD.Parameters.Add("@Material", SqlDbType.VarChar).Value = Inst.Material;
+                        CMD.Parameters.Add("@Color", SqlDbType.VarChar).Value = Inst.Color;
+                        CMD.Parameters.Add("@Estado", SqlDbType.VarChar).Value = Inst.Estado;
+                        CMD.ExecuteNonQuery();
+                        CMD.Dispose();
+                        Instancia_BBDD.Cerrar_Conexion();
+                        return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se actualizo el estuche exitosamente\"";
+                    }
+                    else
+                    {
+                        return Errores + "]}";
+                    }
+                }
+                else
+                {
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+            #endregion
+
+
+            #region CRUD : Controlador Accesorios 
+            // Devuelve la lista total de todos los Estuches //
+            public string Devolver_Lista_Todos_Accesorios(int Bandera = 1, int ID_Accesorio = 0)
+            {
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    CMD = new SqlCommand("I_Listado_Accesorios", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = ID_Accesorio;
+                    CMD.Parameters.Add("@Bandera", SqlDbType.Bit).Value = Bandera;
+                    SqlReader = CMD.ExecuteReader();
+                    List<Accesorio> Lista_Accesorio = new List<Accesorio>();
+                    if (SqlReader.HasRows)
+                    {
+                        while (SqlReader.Read())
                         {
-                            Errores = Errores + "[\"Mensaje\": \"El ID de aula digitado ya existe en la base de datos\"]";
-                            Contador_Errores++;
+                            Accesorio Nuevo_Accesorio = new Accesorio();
+                            Nuevo_Accesorio.ID_Accesorio = SqlReader.GetInt32(0);
+                            Nuevo_Accesorio.ID_Instrumento = SqlReader.GetInt32(1);
+                            Nuevo_Accesorio.Nombre = SqlReader.GetString(2);
+                            Nuevo_Accesorio.Descripcion = SqlReader.GetString(3);
+
+                            Lista_Accesorio.Add(Nuevo_Accesorio);
+                        }
+
+                        CMD.Dispose();
+                        Instancia_BBDD.Cerrar_Conexion();
+                        return JsonConvert.SerializeObject(Lista_Accesorio, Formatting.None, new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        });
+                    }
+                    else
+                    {
+                        return "{\"Exito\":true,\"Codigo\":0,\"Mensaje_Cabecera\":\"Aviso\",\"Mensaje_Usuario\":\"La busqueda no devolvio resultados\"";
+                    }
+                }
+                else
+                {
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+
+            // Inserta un Estuche dado su modelo //
+            public string Insertar_Accesorio(Accesorio Inst)
+            {
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    CMD = new SqlCommand("I_Insertar_Accesorio", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Inst.ID_Accesorio;
+                    CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Inst.ID_Instrumento;
+                    CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
+                    CMD.Parameters.Add("@Descripcion", SqlDbType.VarChar).Value = Inst.Descripcion;
+                    CMD.ExecuteNonQuery();
+                    CMD.Dispose();
+                    Instancia_BBDD.Cerrar_Conexion();
+                    return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se añadio el Accesorio exitosamente\"";
+                }
+                else
+                {
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+
+            // Elimina un Estuche dado su identificador //
+            public string Eliminar_Accesorio(int Id)
+            {
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    CMD = new SqlCommand("I_Eliminar_Accesorio", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Id;
+                    CMD.ExecuteNonQuery();
+                    CMD.Dispose();
+                    Instancia_BBDD.Cerrar_Conexion();
+                    return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se elimino el accesorio correctamente\"";
+                }
+                else
+                {
+                    return "{\"Cod_Resultado\": -1,\"Mensaje\": \"No se pudo conectar con la base de datos\"}";
+                }
+            }
+
+            // Actualiza un Estuche dado su modelo //
+            public string Actualizar_Accesorio(Accesorio Inst)
+            {
+                if (Instancia_BBDD.Abrir_Conexion_BBDD() == true)
+                {
+                    CMD = new SqlCommand("I_Actualizar_Accesorio", Instancia_BBDD.Conexion);
+                    CMD.CommandType = CommandType.StoredProcedure;
+                    CMD.Parameters.Add("@ID_Accesorio", SqlDbType.Int).Value = Inst.ID_Accesorio;
+                    CMD.Parameters.Add("@ID_Instrumento", SqlDbType.Int).Value = Inst.ID_Instrumento;
+                    CMD.Parameters.Add("@Nombre", SqlDbType.VarChar).Value = Inst.Nombre;
+                    CMD.Parameters.Add("@Descripcion", SqlDbType.VarChar).Value = Inst.Descripcion;
+                    CMD.ExecuteNonQuery();
+                    CMD.Dispose();
+                    Instancia_BBDD.Cerrar_Conexion();
+                    return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se actualizo el accesorio correctamente\"";
+                }
+                else
+                {
+                    return "{\"Exito\":false,\"Codigo\":-1,\"Mensaje_Cabecera\":\"Error\",\"Mensaje_Usuario\":\"Ocurrio un error al conectar con el servidor\",\"Descripcion_Error\":\"No se pudo conectar con la base de datos\"}";
+                }
+            }
+            #endregion
+
+            #region Validaciones: CRUD
+
+            /* 
+               Descripcion: Valida que los ID en BD no esten repetidos 
+               Valores del diccionario:
+                   1 : Validacion ID_Estuche
+                   2 : Validacion ID_Instrumento
+                   3 : Validacion ID_Proveedor
+                   4 : Validacion ID_Aula
+                Valores de la bandera
+                0 : Generar nuevo tipo,
+                1 : Validar que el tipo ya exista
+            */
+            public int Validar_ID_Controlador_Inventario(Dictionary<int, int> Lista_ID, int Bandera)
+            {
+                int Contador_Errores = 0;
+                foreach (KeyValuePair<int, int> Entrada in Lista_ID)
+                {
+                    if (Entrada.Key == 1)
+                    {
+                        CMD = new SqlCommand("SELECT DBO.Validar_ID_Estuche(@ID_Estuche)", Instancia_BBDD.Conexion);
+                        CMD.CommandType = CommandType.Text;
+                        CMD.Parameters.Add(new SqlParameter("@ID_Estuche", Entrada.Value));
+                        string Resultado = CMD.ExecuteScalar().ToString();
+                        // Validando que el tipo ya exista //
+                        if (Bandera == 1)
+                        {
+                            if (Resultado == "0")
+                            {
+                                Errores = Errores + "{\"Mensaje\": \"El ID de estuche digitado no existe en la base de datos\"}";
+                                Contador_Errores++;
+                            }
+                        }
+                        else
+                        {
+                            if (Resultado == "1")
+                            {
+                                Errores = Errores + "{\"Mensaje\": \"El ID de estuche digitado ya existe en la base de datos\"}";
+                                Contador_Errores++;
+                            }
+                        }
+                    }
+                    else if (Entrada.Key == 2)
+                    {
+                        CMD = new SqlCommand("SELECT DBO.Validar_ID_Instrumento(@ID_Instrumento)", Instancia_BBDD.Conexion);
+                        CMD.CommandType = CommandType.Text;
+                        CMD.Parameters.Add(new SqlParameter("@ID_Instrumento", Entrada.Value));
+                        string Resultado = CMD.ExecuteScalar().ToString();
+                        // Validando que el tipo ya exista //
+                        if (Bandera == 1)
+                        {
+                            if (Resultado == "0")
+                            {
+                                Errores = Errores + "{\"Mensaje\": \"El ID de instrumento digitado no existe en la base de datos\"}";
+                                Contador_Errores++;
+                            }
+                        }
+                        else
+                        {
+                            if (Resultado == "1")
+                            {
+                                Errores = Errores + "{\"Mensaje\": \"El ID de instrumento digitado ya existe en la base de datos\"}";
+                                Contador_Errores++;
+                            }
+                        }
+                    }
+                    else if (Entrada.Key == 3)
+                    {
+                        CMD = new SqlCommand("SELECT DBO.Validar_ID_Proveedor(@ID_Proveedor)", Instancia_BBDD.Conexion);
+                        CMD.CommandType = CommandType.Text;
+                        CMD.Parameters.Add(new SqlParameter("@ID_Proveedor", Entrada.Value));
+                        string Resultado = CMD.ExecuteScalar().ToString();
+                        // Validando que el tipo ya exista //
+                        if (Bandera == 1)
+                        {
+                            if (Resultado == "0")
+                            {
+                                Errores = Errores + "{\"Mensaje\": \"El ID de proveedor digitado no existe en la base de datos\"}";
+                                Contador_Errores++;
+                            }
+                        }
+                        else
+                        {
+                            if (Resultado == "1")
+                            {
+                                Errores = Errores + "{\"Mensaje\": \"El ID de proveedor digitado ya existe en la base de datos\"}";
+                                Contador_Errores++;
+                            }
+                        }
+                    }
+                    else if (Entrada.Key == 4)
+                    {
+                        CMD = new SqlCommand("SELECT DBO.Validar_ID_Aula(@ID_Aula)", Instancia_BBDD.Conexion);
+                        CMD.CommandType = CommandType.Text;
+                        CMD.Parameters.Add(new SqlParameter("@ID_Aula", Entrada.Value));
+                        string Resultado = CMD.ExecuteScalar().ToString();
+                        // Validando que el tipo ya exista //
+                        if (Bandera == 1)
+                        {
+                            if (Resultado == "0")
+                            {
+                                Errores = Errores + "{\"Mensaje\": \"El ID de aula digitado no existe en la base de datos\"}";
+                                Contador_Errores++;
+                            }
+                        }
+                        else
+                        {
+                            if (Resultado == "1")
+                            {
+                                Errores = Errores + "{\"Mensaje\": \"El ID de aula digitado ya existe en la base de datos\"}";
+                                Contador_Errores++;
+                            }
                         }
                     }
                 }
-            }            
-            return Contador_Errores;
+                return Contador_Errores;
+            }
+            #endregion
+
         }
-        #endregion
     }
-}
+
+
