@@ -146,7 +146,7 @@ namespace MELB_WS.Models.Inventario.Operaciones
                 CMD.ExecuteNonQuery();
                 CMD.Dispose();
                 Instancia_BBDD.Cerrar_Conexion();
-                return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se elimino el instrumento\"";
+                return "{\"Exito\":true,\"Codigo\":5,\"Mensaje_Cabecera\":\"Exito\",\"Mensaje_Usuario\":\"Se elimino el instrumento\"}";
             }
             else
             {
